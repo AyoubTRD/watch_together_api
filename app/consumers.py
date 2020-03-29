@@ -2,7 +2,6 @@ import json
 
 from channels.db import database_sync_to_async as s2as
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.layers import get_channel_layer
 from django.contrib.auth.models import AnonymousUser
 from django.db import IntegrityError
 
@@ -17,7 +16,7 @@ def format_message(type, data):
 
 def format_message_reverse(json_data):
     data = json.loads(json_data)
-    return data['type'], data['data']
+    return data.get('type'), data.get('data')
 
 
 class AuthConsumer(AsyncWebsocketConsumer):
@@ -64,33 +63,58 @@ class AuthConsumer(AsyncWebsocketConsumer):
             'token': user['token']
         }))
 
-    async def handleLogout(self):
-        self.scope['user'] = AnonymousUser()
-        await self.send(format_message('logout_success', {}))
-
 
 class GlobalConsumer(AsyncWebsocketConsumer):
-    async def websocket_receive(self, message):
+    async def connect(self):
+        token = self.scope['url_route']['kwargs']['token']
+        user = await s2as(User.objects.authenticate_with_jwt)(token)
+
+        if user:
+            self.scope['user'] = user['user']
+            await self.accept()
+            await self.channel_layer.group_send('global', {
+                'type': 'websocket.send',
+                'text': format_message('online_user', {
+                    'user': user['user'].as_min_dict()
+                })
+            })
+            await self.channel_layer.group_add('global', self.channel_name)
+            user['user'].channel_name = self.channel_name
+            await s2as(user['user'].save)()
+            await self.get_profile()
+        else:
+            await self.close()
+
+    async def disconnect(self, code=None):
+        user = self.scope['user']
+        user.is_online = False
+        user.channel_name = ''
+        await s2as(user.save)()
+        await self.channel_layer.group_discard('global', self.channel_name)
+        await self.channel_layer.group_send('global', {
+            'type': 'websocket.send',
+            'text': format_message('offline_user', {'user': user.as_min_dict()})
+        })
+        await self.close()
+
+    async def logout(self):
+        user = self.scope['user']
+        token_to_remove = self.scope['url_route']['kwargs']['token']
+        tokens = json.loads(user.tokens)
+        tokens.remove(token_to_remove)
+        user.tokens = json.dumps(tokens)
+        await s2as(user.save)()
+        await self.disconnect()
+
+    async def websocket_send(self, message):
         type, data = format_message_reverse(message['text'])
         await self.send(format_message(type, data))
-        print(type, data)
-
-    async def connect(self):
-        await self.accept()
-
-    async def disconnect(self, code):
-        if not self.scope['user'] == AnonymousUser():
-            self.scope['user'].is_online = False
-            await s2as(self.scope['user'].save)()
 
     async def receive(self, text_data=None, bytes_data=None):
         type, data = format_message_reverse(text_data)
-
-        if not data.get('token'):
-            return await self.send(format_message('auth_error', {}))
-        await self.auth_middleware(data['token'])
-
-        if type == 'profile':
+        if type == 'logout':
+            await self.logout()
+        elif type == 'profile':
             await self.get_profile()
         elif type == 'rooms':
             await self.get_rooms()
@@ -170,7 +194,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         try:
             friends = await s2as(self.scope['user'].add_friend)(id)
             await self.send(format_message('add_friend_success', {
-                'friends': [friend.as_min_dict() for friend in friends]
+                'friends': [await s2as(friend.as_min_dict)() for friend in friends]
             }))
         except User.DoesNotExist:
             await self.send(format_message('add_friend_error', 'User not found'))
@@ -189,7 +213,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
 
     async def get_profile(self):
         if not self.scope['user'] == AnonymousUser():
-            await self.send(format_message('profile', {'user': await s2as(self.scope['user'].as_min_dict)()}))
+            await self.send(format_message('profile', {'user': await s2as(self.scope['user'].as_dict)()}))
 
     async def get_rooms(self):
         rooms = [await s2as(room.as_preview_dict)() for room in await s2as(Room.objects.order_by)('-created_at')]
@@ -199,20 +223,3 @@ class GlobalConsumer(AsyncWebsocketConsumer):
 
     async def auth_middleware(self, token):
         is_already_logged_in = self.scope['user'] != AnonymousUser()
-        user = await s2as(User.objects.authenticate_with_jwt)(token)
-
-        if user:
-            if not is_already_logged_in:
-                await self.channel_layer.group_send('global', {
-                    'type': 'websocket.send',
-                    'text': format_message('online_user', {
-                        'user': user['user'].as_min_dict()
-                    })
-                })
-                await self.channel_layer.group_add('global', self.channel_name)
-                user['user'].channel_name = self.channel_name
-                await s2as(user['user'].save)()
-            self.scope['user'] = user['user']
-        else:
-            self.scope['user'] = AnonymousUser()
-            await self.send(format_message('auth_error', {}))

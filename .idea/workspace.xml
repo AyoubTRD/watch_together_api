@@ -6,9 +6,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/consumers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/consumers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/managers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/managers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routing.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/serializers.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/views.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
@@ -107,7 +108,7 @@
       <workItem from="1585314623583" duration="2247000" />
       <workItem from="1585317125151" duration="14676000" />
       <workItem from="1585337471549" duration="13109000" />
-      <workItem from="1585420040167" duration="4821000" />
+      <workItem from="1585420040167" duration="13333000" />
     </task>
     <servers />
   </component>

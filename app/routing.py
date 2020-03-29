@@ -7,6 +7,6 @@ from .consumers import AuthConsumer, GlobalConsumer
 application = ProtocolTypeRouter({
     'websocket': AuthMiddlewareStack(URLRouter([
         path('auth', AuthConsumer),
-        path('', GlobalConsumer)
+        path('<str:token>', GlobalConsumer)
     ]))
 })
