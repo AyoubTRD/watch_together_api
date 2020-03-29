@@ -5,10 +5,14 @@ from random import choice
 # Create your models here.
 from .managers import UserManager
 
+
 class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     objects = UserManager()
     USERNAME_FIELD = 'email'
+
+    tokens = models.TextField(max_length=100000, default='[]')
+    channel_name = models.CharField(max_length=255, default='')
 
     email = models.EmailField(max_length=200, unique=True)
     name = models.CharField(default='Anonymous', unique=False, max_length=100)
@@ -19,9 +23,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     room = models.ForeignKey('Room', on_delete=models.SET_NULL, null=True, related_name='user_room')
 
-    def get_full_name(self): return self.name
-    def get_short_name(self): return self.get_full_name()
-    def __str__(self): return self.name
+    def get_full_name(self):
+        return self.name
+
+    def get_short_name(self):
+        return self.get_full_name()
+
+    def __str__(self):
+        return self.name
 
     def as_dict(self):
         return {

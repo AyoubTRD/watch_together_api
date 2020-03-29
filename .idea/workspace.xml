@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2be8e932-e97c-4d87-bfb7-916b5bd4d0c7" name="Default Changelist" comment="" />
+    <list default="true" id="2be8e932-e97c-4d87-bfb7-916b5bd4d0c7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/managers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/managers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/serializers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rest_api/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/rest_api/settings.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,17 +46,22 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1ZZXIVZbCeW5hDy2DtcBCfKGnRg" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="preferences.editor" />
+    <property name="settings.editor.selected.configurable" value="settings.saveactions" />
   </component>
   <component name="RunManager">
     <configuration name="rest_api" type="Python.DjangoServer" factoryName="Django server">
@@ -85,7 +102,12 @@
       <workItem from="1585061443633" duration="3129000" />
       <workItem from="1585163977771" duration="1018000" />
       <workItem from="1585217156589" duration="11529000" />
-      <workItem from="1585231812834" duration="1614000" />
+      <workItem from="1585231812834" duration="12009000" />
+      <workItem from="1585314239685" duration="170000" />
+      <workItem from="1585314623583" duration="2247000" />
+      <workItem from="1585317125151" duration="14676000" />
+      <workItem from="1585337471549" duration="13109000" />
+      <workItem from="1585420040167" duration="4821000" />
     </task>
     <servers />
   </component>
@@ -93,18 +115,18 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="232" y="150" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585061555294">
+    <state x="232" y="150" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585317771741">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="232" y="150" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.984@0.0.1280.984" timestamp="1585061555294" />
+    <state x="232" y="150" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.984@0.0.1280.984" timestamp="1585317771741" />
     <state width="196" height="539" key="HiddenNamespacesPopup" timestamp="1585230288255">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
     <state width="196" height="539" key="HiddenNamespacesPopup/0.0.1280.984@0.0.1280.984" timestamp="1585230288255" />
-    <state x="141" y="134" key="SettingsEditor" timestamp="1585059862922">
+    <state x="141" y="134" key="SettingsEditor" timestamp="1585413835445">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="141" y="134" key="SettingsEditor/0.0.1280.984@0.0.1280.984" timestamp="1585059862922" />
+    <state x="141" y="134" key="SettingsEditor/0.0.1280.984@0.0.1280.984" timestamp="1585413835445" />
     <state x="361" y="233" width="540" height="540" key="StructurePopup" timestamp="1585061762036">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
@@ -113,10 +135,14 @@
       <screen x="0" y="0" width="1280" height="984" />
     </state>
     <state width="498" height="446" key="SwitcherDM/0.0.1280.984@0.0.1280.984" timestamp="1585224198017" />
-    <state x="316" y="316" key="com.intellij.ide.util.TipDialog" timestamp="1585231825039">
+    <state x="316" y="316" key="com.intellij.ide.util.TipDialog" timestamp="1585420260026">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="316" y="316" key="com.intellij.ide.util.TipDialog/0.0.1280.984@0.0.1280.984" timestamp="1585231825039" />
+    <state x="316" y="316" key="com.intellij.ide.util.TipDialog/0.0.1280.984@0.0.1280.984" timestamp="1585420260026" />
+    <state width="600" height="440" key="javadoc.popup" timestamp="1585419202929">
+      <screen x="0" y="0" width="1280" height="984" />
+    </state>
+    <state width="600" height="440" key="javadoc.popup/0.0.1280.984@0.0.1280.984" timestamp="1585419202929" />
     <state x="303" y="211" width="672" height="678" key="search.everywhere.popup" timestamp="1585060744177">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
