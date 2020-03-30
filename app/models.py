@@ -19,9 +19,17 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now=True)
 
     is_online = models.BooleanField(default=False)
-    friends = models.ManyToManyField('self', related_name='user_friends')
+
+    gender = models.CharField(choices=(
+        ('male', 'male'), ('female', 'female')
+    ), default='male', max_length=15)
 
     room = models.ForeignKey('Room', on_delete=models.SET_NULL, null=True, related_name='user_room')
+
+    avatar = models.URLField(default='https://robohash.org/anonymous/?set=set4&size=1000x1000')
+    preview_avatar = models.URLField(default='https://robohash.org/anonymous/?set=set4&size=350x350')
+
+    friends = models.ManyToManyField('self')
 
     def get_full_name(self):
         return self.name
@@ -123,10 +131,78 @@ class User(AbstractBaseUser, PermissionsMixin):
         message_text = message_text.strip()
         message = self.message_set.create(message_text=message_text, room=self.room)
         message.save()
-        self.room.messages.add(message)
         self.save()
         self.room.save()
         return message
+
+    def create_post(self, post_text=None):
+        if not post_text: raise ValueError('You must provide text for your post')
+        post = self.post_set.create(post_text=post_text)
+        post.save()
+        return post
+
+    def delete_post(self, post_pk=None):
+        if not post_pk: raise ValueError('You must provide the post you want to delete')
+        try:
+            post = self.post_set.get(pk=post_pk)
+            post.delete()
+            return self.post_set.all()
+        except Post.DoesNotExist:
+            raise ValueError('Post not found')
+
+    def update_post(self, post_pk=None, post_text=None):
+        if not post_pk: raise ValueError('You must provide the post you want to update')
+        if not post_text: raise ValueError('You must provide the new information for the post')
+        try:
+            post = self.post_set.get(pk=post_pk)
+            post.post_text = post_text
+            post.save()
+            return post
+        except Post.DoesNotExist:
+            raise ValueError('Post not found')
+
+    def like_post(self, post_pk=None):
+        if not post_pk: raise ValueError('You must provide the post')
+        try:
+            post = Post.objects.get(pk=post_pk)
+            try:
+                me = post.likes.get(pk=self.pk)
+                me.delete()
+            except User.DoesNotExist:
+                post.likes.add(self)
+            post.save()
+        except Post.DoesNotExist:
+            raise ValueError('Post not found')
+
+    def comment_post(self, post_pk=None, comment_text=None):
+        if not post_pk: raise ValueError('You must provide the post')
+        if not comment_text: raise ValueError('You must provide the comment')
+        try:
+            post = Post.objects.get(pk=post_pk)
+            comment = post.comments_set.create(comment_text=comment_text, author=self)
+            comment.save()
+            return comment
+        except Post.DoesNotExist:
+            raise ValueError('Post not found')
+
+    def delete_comment(self, comment_pk=None):
+        if not comment_pk: raise ValueError('You must provide the comment to delete')
+        try:
+            comment = self.comment_set.get(pk=comment_pk)
+            comment.delete()
+        except Comment.DoesNotExist:
+            raise ValueError('Comment does not exist')
+
+    def update_comment(self, comment_pk=None, comment_text=None):
+        if not comment_pk: raise ValueError('You must provide the comment to update')
+        if not comment_text: raise ValueError('You must provide the comment text')
+        try:
+            comment = self.comment_set.get(pk=comment_pk)
+            comment.comment_text = comment_text
+            comment.save()
+            return comment
+        except Comment.DoesNotExist:
+            raise ValueError('Comment does not exist')
 
 
 class Room(models.Model):
@@ -134,7 +210,6 @@ class Room(models.Model):
     users_watching = models.ManyToManyField(User, related_name='room_watching_users')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='room_creator', default=None)
     name = models.CharField(max_length=300)
-    messages = models.ManyToManyField('Message', related_name='room_messages')
 
     created_at = models.DateTimeField(auto_now=True)
 
@@ -154,13 +229,14 @@ class Room(models.Model):
             'name': self.name,
             'users_watching': [user.as_min_dict() for user in self.users_watching.all()],
             'user': self.user.as_min_dict(),
+            'messages': [message.as_dict() for message in self.message_set.all()],
             'id': self.pk
         }
 
 
 class Message(models.Model):
     author = models.ForeignKey('User', on_delete=models.CASCADE)
-    room = models.ForeignKey('Room', on_delete=models.CASCADE, related_name='message_room')
+    room = models.ForeignKey('Room', on_delete=models.CASCADE)
     message_text = models.CharField(max_length=10000)
 
     created_at = models.DateTimeField(auto_now=True)
@@ -173,5 +249,37 @@ class Message(models.Model):
             'message_text': self.message_text,
             'created_at': self.created_at,
             'author': self.author.as_min_dict(),
+            'id': self.pk
+        }
+
+
+class Post(models.Model):
+    author = models.ForeignKey('User', on_delete=models.CASCADE)
+    post_text = models.TextField(max_length=1000000)
+    posted_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField('User', on_delete=models.CASCADE)
+
+    def as_dict(self):
+        return {
+            'author': self.author.as_min_dict(),
+            'post_text': self.post_text,
+            'posted_at': self.posted_at,
+            'likes': [like.as_min_dict() for like in self.likes.all()],
+            'comments': [comment.as_dict() for comment in self.comment_set.order_by('-created_at')],
+            'id': self.pk
+        }
+
+
+class Comment(models.Model):
+    author = models.ForeignKey('User', on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    comment_text = models.TextField(max_length=1000000)
+    created_at = models.DateTimeField(auto_now=True)
+
+    def as_dict(self):
+        return {
+            'author': self.author.as_min_dict(),
+            'comment_text': self.comment_text,
+            'created_at': self.created_at,
             'id': self.pk
         }

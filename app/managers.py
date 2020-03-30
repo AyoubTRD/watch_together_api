@@ -12,17 +12,20 @@ from django.contrib.auth.hashers import check_password
 class UserManager(BaseUserManager):
     """The manager of the User class"""
 
-    def create_user(self, email=None, name=None, password=None):
+    def create_user(self, email=None, name='Anonymous', password=None, gender='male'):
         """Create a new User"""
         email_regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         if not email: raise ValueError('A user must have an email')
         if not re.fullmatch(email_regex, email): raise ValueError('Invalid Email')
         if not password: raise ValueError('A user must have a password')
         if len(password) < 5: raise ValueError('The password can\'t be less than 5 characters')
-        if not name: name = 'Anonymous'
+        if not (gender == 'male' or gender == 'female'):
+            raise ValueError('The gender must be either male or female')
 
+        avatar = f'https://robohash.org/{email}/?set=set4&size=1000x1000'
+        preview_avatar = f'https://robohash.org/{email}/?set=set4&size=350x350'
         email = self.normalize_email(email)
-        user = self.model(name=name, email=email)
+        user = self.model(name=name, email=email, gender=gender, avatar=avatar, preview_avatar=preview_avatar)
         user.set_password(password)
         user.save()
         return user

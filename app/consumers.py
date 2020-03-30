@@ -1,11 +1,12 @@
 import json
 
-from channels.db import database_sync_to_async as s2as
+from asgiref.sync import sync_to_async as s2as, async_to_sync as as2s
+# from channels.db import database_sync_to_async as s2as
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 from django.db import IntegrityError
 
-from .models import User, Room
+from .models import User, Room, Post
 
 
 def format_message(type, data):
@@ -19,6 +20,18 @@ def format_message_reverse(json_data):
     return data.get('type'), data.get('data')
 
 
+def users_to_dicts(users, min_dict=True):
+    if min_dict:
+        return [user.as_min_dict() for user in users]
+    return [user.as_dict() for user in users]
+
+
+def rooms_to_dicts(rooms, min_dict=True):
+    if min_dict:
+        return [room.as_preview_dict() for room in rooms]
+    return [room.as_dict() for room in rooms]
+
+
 class AuthConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         print('new connection')
@@ -26,14 +39,10 @@ class AuthConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         type, data = format_message_reverse(text_data)
-        if self.scope['user'] == AnonymousUser():
-            if type == 'signup':
-                await self.handleSignup(data)
-            elif type == 'login':
-                await self.handleLogin(data)
-        else:
-            if type == 'logout':
-                await self.handleLogout()
+        if type == 'signup':
+            await self.handleSignup(data)
+        elif type == 'login':
+            await self.handleLogin(data)
 
     async def handleSignup(self, data):
         try:
@@ -65,6 +74,12 @@ class AuthConsumer(AsyncWebsocketConsumer):
 
 
 class GlobalConsumer(AsyncWebsocketConsumer):
+    async def notify_all(self, type, data):
+        await self.channel_layer.group_send('global', {
+            'type': 'websocket.send',
+            'text': format_message(type, data)
+        })
+
     async def connect(self):
         token = self.scope['url_route']['kwargs']['token']
         user = await s2as(User.objects.authenticate_with_jwt)(token)
@@ -72,12 +87,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         if user:
             self.scope['user'] = user['user']
             await self.accept()
-            await self.channel_layer.group_send('global', {
-                'type': 'websocket.send',
-                'text': format_message('online_user', {
-                    'user': user['user'].as_min_dict()
-                })
-            })
+            await self.notify_all('online_user', {'user': user['user'].as_min_dict()})
             await self.channel_layer.group_add('global', self.channel_name)
             user['user'].channel_name = self.channel_name
             await s2as(user['user'].save)()
@@ -91,10 +101,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         user.channel_name = ''
         await s2as(user.save)()
         await self.channel_layer.group_discard('global', self.channel_name)
-        await self.channel_layer.group_send('global', {
-            'type': 'websocket.send',
-            'text': format_message('offline_user', {'user': user.as_min_dict()})
-        })
+        await self.notify_all('offline_user', {'user': user.as_min_dict()})
         await self.close()
 
     async def logout(self):
@@ -139,14 +146,102 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             await self.leave_room()
         elif type == 'delete_room':
             await self.delete_room()
+        elif type == 'get_posts':
+            await self.get_posts()
+        elif type == 'create_post':
+            if data.get('post'): await self.create_post(data['post'])
+        elif type == 'delete_post':
+            if data.get('id'): await self.delete_post(data['id'])
+        elif type == 'update_post':
+            if data.get('id') and data.get('text'): await self.update_post(data['id'], data['text'])
+        elif type == 'create_comment':
+            if data.get('id') and data.get('comment_text'):
+                await self.create_comment(data['id'], data['comment_text'])
+        elif type == 'update_comment':
+            if data.get('id') and data.get('comment_text'):
+                await self.update_comment(data['id'], data['comment_text'])
+        elif type == 'delete_comment':
+            if data.get('id'): await self.delete_comment(data['id'])
+        elif type == 'like_post':
+            if data.get('id'): await self.like_post(data['id'])
+
+    async def like_post(self, post_id):
+        user = self.scope['user']
+        try:
+            await s2as(user.like_post)(post_id)
+            await self.send(format_message('like_post_success', {'id': post_id}))
+        except ValueError as err:
+            await self.send('like_post_error', str(err))
+
+    async def delete_comment(self, comment_id):
+        user = self.scope['user']
+        try:
+            await s2as(user.delete_comment)(comment_id)
+            await self.send(format_message('delete_comment_success', {}))
+        except ValueError as err:
+            await self.send('delete_comment_error', str(err))
+
+    async def update_comment(self, comment_id, comment_text):
+        user = self.scope['user']
+        try:
+            comment = await s2as(user.update_comment)(comment_id, comment_text)
+            await self.send(format_message('update_comment_success', {
+                'comment': await s2as(comment.as_dict)()
+            }))
+        except ValueError as err:
+            await self.send(format_message('update_comment_error', str(err)))
+
+    async def create_comment(self, post_id, comment_text):
+        user = self.scope['user']
+        try:
+            comment = await s2as(user.comment_post)(post_id, comment_text)
+            await self.send(format_message('create_comment_success', {
+                'comment': await s2as(comment.as_dict)()
+            }))
+        except ValueError as err:
+            await self.send(format_message('create_comment_error', str(err)))
+
+    async def update_post(self, id, new_text):
+        user = self.scope['user']
+        try:
+            post = await s2as(user.update_post)(id, new_text)
+            await self.send(format_message('update_post_success', {
+                'post': post
+            }))
+        except ValueError as err:
+            await self.send(format_message('update_post_error', str(err)))
+
+    async def delete_post(self, id):
+        user = self.scope['user']
+        try:
+            await s2as(user.delete_post)(id)
+            await self.send(format_message('delete_post_success', {}))
+        except ValueError as err:
+            await self.send(format_message('delete_post_error', str(err)))
+
+    async def create_post(self, post_text):
+        user = self.scope['user']
+        try:
+            post = await s2as(user.create_post)(post_text)
+            await self.send(format_message('create_post_success', {
+                'post': await s2as(post.as_dict)()
+            }))
+        except ValueError as err:
+            await self.send(format_message('create_post_error', str(err)))
+
+    async def get_posts(self):
+        posts = await s2as(Post.objects.order_by)('-posted_at')
+        await self.send(format_message('posts', {'posts': users_to_dicts(posts, min_dict=False)}))
 
     async def delete_room(self):
-        user = self.scope['user']  # :type User
+        user = self.scope['user']
         try:
+            room = await s2as(user.room.as_dict)()
             user = await s2as(user.delete_room)()
             await self.send(format_message('delete_room_success', {
                 'user': await s2as(user.as_dict)()
             }))
+            await self.notify_all('room_deleted', {'room': room})
         except ValueError as err:
             await self.send(format_message('delete_room_error', str(err)))
 
@@ -177,6 +272,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             await self.send(format_message('create_room_success', {
                 'room': await s2as(room.as_dict)()
             }))
+            await self.notify_all('room_created', {'room': await s2as(room.as_dict)()})
         except ValueError as err:
             await self.send(format_message('create_room_error', str(err)))
 
@@ -194,7 +290,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         try:
             friends = await s2as(self.scope['user'].add_friend)(id)
             await self.send(format_message('add_friend_success', {
-                'friends': [await s2as(friend.as_min_dict)() for friend in friends]
+                'friends': await s2as(users_to_dicts)(friends)
             }))
         except User.DoesNotExist:
             await self.send(format_message('add_friend_error', 'User not found'))
@@ -208,18 +304,16 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             await self.send(format_message('user', {}))
 
     async def get_users(self):
-        users = [user.as_min_dict() for user in await s2as(User.objects.all)()]
-        await self.send(format_message('users', {'users': users}))
+        users = await s2as(User.objects.all)()
+        await self.send(format_message('users', {'users': await s2as(users_to_dicts)(users)}))
 
     async def get_profile(self):
         if not self.scope['user'] == AnonymousUser():
             await self.send(format_message('profile', {'user': await s2as(self.scope['user'].as_dict)()}))
 
     async def get_rooms(self):
-        rooms = [await s2as(room.as_preview_dict)() for room in await s2as(Room.objects.order_by)('-created_at')]
-        await self.send(format_message('rooms', {
-            'rooms': rooms
-        }))
+        rooms = await s2as(Room.objects.order_by)('-created_at')
 
-    async def auth_middleware(self, token):
-        is_already_logged_in = self.scope['user'] != AnonymousUser()
+        await self.send(format_message('rooms', {
+            'rooms': await s2as(rooms_to_dicts)(rooms)
+        }))

@@ -2,18 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2be8e932-e97c-4d87-bfb7-916b5bd4d0c7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/consumers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/consumers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/managers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/managers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routing.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rest_api/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/rest_api/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dump.rdb" beforeDir="false" afterPath="$PROJECT_DIR$/dump.rdb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +56,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="settings.saveactions" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RunManager">
     <configuration name="rest_api" type="Python.DjangoServer" factoryName="Django server">
@@ -108,7 +102,8 @@
       <workItem from="1585314623583" duration="2247000" />
       <workItem from="1585317125151" duration="14676000" />
       <workItem from="1585337471549" duration="13109000" />
-      <workItem from="1585420040167" duration="13333000" />
+      <workItem from="1585420040167" duration="20852000" />
+      <workItem from="1585569629353" duration="10784000" />
     </task>
     <servers />
   </component>
@@ -124,29 +119,29 @@
       <screen x="0" y="0" width="1280" height="984" />
     </state>
     <state width="196" height="539" key="HiddenNamespacesPopup/0.0.1280.984@0.0.1280.984" timestamp="1585230288255" />
-    <state x="141" y="134" key="SettingsEditor" timestamp="1585413835445">
+    <state x="141" y="134" key="SettingsEditor" timestamp="1585581196831">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="141" y="134" key="SettingsEditor/0.0.1280.984@0.0.1280.984" timestamp="1585413835445" />
+    <state x="141" y="134" key="SettingsEditor/0.0.1280.984@0.0.1280.984" timestamp="1585581196831" />
     <state x="361" y="233" width="540" height="540" key="StructurePopup" timestamp="1585061762036">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
     <state x="361" y="233" width="540" height="540" key="StructurePopup/0.0.1280.984@0.0.1280.984" timestamp="1585061762036" />
-    <state width="498" height="446" key="SwitcherDM" timestamp="1585224198017">
+    <state width="498" height="446" key="SwitcherDM" timestamp="1585574897677">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state width="498" height="446" key="SwitcherDM/0.0.1280.984@0.0.1280.984" timestamp="1585224198017" />
-    <state x="316" y="316" key="com.intellij.ide.util.TipDialog" timestamp="1585420260026">
+    <state width="498" height="446" key="SwitcherDM/0.0.1280.984@0.0.1280.984" timestamp="1585574897677" />
+    <state x="316" y="316" key="com.intellij.ide.util.TipDialog" timestamp="1585569648550">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="316" y="316" key="com.intellij.ide.util.TipDialog/0.0.1280.984@0.0.1280.984" timestamp="1585420260026" />
+    <state x="316" y="316" key="com.intellij.ide.util.TipDialog/0.0.1280.984@0.0.1280.984" timestamp="1585569648550" />
     <state width="600" height="440" key="javadoc.popup" timestamp="1585419202929">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
     <state width="600" height="440" key="javadoc.popup/0.0.1280.984@0.0.1280.984" timestamp="1585419202929" />
-    <state x="303" y="211" width="672" height="678" key="search.everywhere.popup" timestamp="1585060744177">
+    <state x="303" y="211" width="672" height="678" key="search.everywhere.popup" timestamp="1585578369915">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="303" y="211" width="672" height="678" key="search.everywhere.popup/0.0.1280.984@0.0.1280.984" timestamp="1585060744177" />
+    <state x="303" y="211" width="672" height="678" key="search.everywhere.popup/0.0.1280.984@0.0.1280.984" timestamp="1585578369915" />
   </component>
 </project>
